@@ -1,0 +1,11 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Successful: @(Model.Successful)</p>
+    <p>Failed: @(Model.Failed)</p>
+</div>
