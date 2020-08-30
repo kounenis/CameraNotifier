@@ -80,7 +80,7 @@ namespace CameraNotifier.Services.WatchService
             catch (Exception e)
             {
                 failed++;
-                Serilog.Log.Error($"Error getting image and classifying it. {e.Message}", e);
+                Serilog.Log.Error($"Error getting image and classifying it. {e.Message}\n{e.StackTrace}", e);
             }
             finally
             {
