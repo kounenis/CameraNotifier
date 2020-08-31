@@ -12,11 +12,14 @@ Camera feed is fetched via a HTTP Get request (use of credentials is supported).
 This configuration is required. It can be added in the appsettings.json file. For deployment I put these settings in a separate location outside my code repo and supply the location of the file via an optional --customAppSettings argument.
 
 I start it like this:
+```
 dotnet /mnt/path/to/my/buildserver/CameraNotifier/prod/CameraNotifier.dll -- --customAppSettings=/mnt/path/to/my/configs/cameraNotifierConfig.json
+```
 
 # Required config 
 The Slack app needs to be added to your channel and have permission to upload files
 
+```json
 {
  "CameraFeed": {
     "Url": "http://192.168.0.99:80/ISAPI/Streaming/Channels/101/picture",
@@ -43,3 +46,4 @@ The Slack app needs to be added to your channel and have permission to upload fi
 	"LogFile" : "/mnt/path/to/log/file/log.txt"
   }  
 }
+```
