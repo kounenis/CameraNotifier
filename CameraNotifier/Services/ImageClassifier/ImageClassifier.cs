@@ -108,7 +108,7 @@ namespace CameraNotifier.Services.ImageClassifier
 
             mlContext.Model.Save(trainedModel, imageData.Schema, _options.ModelPath);
 
-            Directory.Delete(workspacePath);
+            Directory.Delete(workspacePath, true);
 
             return trainedModel;
         }
