@@ -6,5 +6,8 @@
 
         public int IntervalSeconds { get; set; }
         public string StatusFilePath { get; set; }
+
+        public string OriginalPhotoSavePath { get; set; }
+        public string CroppedPhotoSavePath { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Vision;
+using Serilog;
 
 namespace CameraNotifier.Services.ImageClassifier
 {
@@ -19,6 +20,8 @@ namespace CameraNotifier.Services.ImageClassifier
         public ImageClassifier(IOptions<ImageClassifierOptions> options)
         {
             _options = options.Value;
+
+            Log.Logger.Information("Initializing ImageClassifier");
         }
 
         public string ClassifyImage(string imagePath)
@@ -45,21 +48,27 @@ namespace CameraNotifier.Services.ImageClassifier
 
         private void BuildModel(bool clearPrevious)
         {
+            
             if (clearPrevious && File.Exists(_options.ModelPath))
             {
                 File.Delete(_options.ModelPath);
             }
 
             _mlContext = new MLContext();
+            _mlContext.Log += (sender, e) => Log.Logger.Information(e.Message);
+            _mlContext.FallbackToCpu = true;
 
             if (File.Exists(_options.ModelPath))
             {
+                Log.Logger.Information("Loading Model");
                 _model = _mlContext.Model.Load(_options.ModelPath, out _);
             }
             else
             {
+                Log.Logger.Information("Creating Model");
                 _model = CreateModel(_mlContext);
             }
+            Log.Logger.Information("Model is ready");
         }
 
         private ITransformer CreateModel(MLContext mlContext)
@@ -104,7 +113,9 @@ namespace CameraNotifier.Services.ImageClassifier
                 .ImageClassification(classifierOptions)
                 .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
 
+            Log.Logger.Information("Will start Fit");
             var trainedModel = trainingPipeline.Fit(trainSet);
+            Log.Logger.Information("Fit finished, will save model");
 
             mlContext.Model.Save(trainedModel, imageData.Schema, _options.ModelPath);
 

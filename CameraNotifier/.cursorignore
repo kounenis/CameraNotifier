@@ -1,0 +1,9 @@
+bin/
+obj/
+Pages/
+node_modules/
+.git/
+.gitignore
+.cursorignore
+.cursorrules
+

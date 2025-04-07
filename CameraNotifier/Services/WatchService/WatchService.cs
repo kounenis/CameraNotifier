@@ -29,6 +29,8 @@ namespace CameraNotifier.Services.WatchService
             ISlackNotifier slackNotifier, IOptions<WatchServiceOptions> watchServiceOptions,
             IOptions<CameraFeedOptions> cameraFeedOptions)
         {
+            Log.Logger.Information("Initializing WatchService");
+
             _imageClassifier = imageClassifier;
             _cameraFeedService = cameraFeedService;
             _slackNotifier = slackNotifier;
@@ -44,6 +46,7 @@ namespace CameraNotifier.Services.WatchService
 
         private void OnTimerTick(object obj)
         {
+            Log.Logger.Information("Processing image");
             var start = DateTime.UtcNow;
 
             string fullImagePath = null;
@@ -52,6 +55,7 @@ namespace CameraNotifier.Services.WatchService
             try
             {
                 fullImagePath = _cameraFeedService.GetPhoto();
+                Log.Logger.Information("Got photo");
 
                 string currentStatus = null;
                 if (File.Exists(_options.StatusFilePath))
@@ -61,12 +65,14 @@ namespace CameraNotifier.Services.WatchService
 
                 croppedImagePath = GetCroppedImagePath(fullImagePath);
 
+                Log.Logger.Information("About to classify image");
                 var newStatus = _imageClassifier.ClassifyImage(croppedImagePath);
 
+                Log.Logger.Information("New status" + newStatus);
                 if (currentStatus != newStatus)
                 {
-                    _slackNotifier.SendNotification($"Status changed from {currentStatus} to {newStatus}",
-                        fullImagePath);
+                    //_slackNotifier.SendNotification($"Status changed from {currentStatus} to {newStatus}",
+                    //    fullImagePath);
 
                     File.WriteAllText(_options.StatusFilePath, newStatus);
                 }
@@ -90,9 +96,9 @@ namespace CameraNotifier.Services.WatchService
                 _timer.Change(delayTimespan, Timeout.InfiniteTimeSpan);
             }
 
-            SafeDeleteFile(fullImagePath);
-            SafeDeleteFile(croppedImagePath);
-
+            SafeDeleteFile(fullImagePath, this._options.OriginalPhotoSavePath);
+            SafeDeleteFile(croppedImagePath, this._options.CroppedPhotoSavePath);
+            Log.Logger.Information("Finished OnTimer image");
         }
 
         public (int successful, int failed) GetStats()
@@ -100,10 +106,24 @@ namespace CameraNotifier.Services.WatchService
             return (successful, failed);
         }
 
-        private static void SafeDeleteFile(string filePath)
+        private static void SafeDeleteFile(string filePath, string savePath)
         {
             try
             {
+                try
+                {
+                    if (!string.IsNullOrEmpty(savePath))
+                    {
+                        Directory.CreateDirectory(savePath);
+                        var fileName = $"{DateTime.Now.ToString("O").Replace("-", "").Replace(":", "_").Replace("+", "_")}.jpg";
+                        File.Copy(filePath, Path.Combine(savePath, fileName), true);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Serilog.Log.Error($"Failed to save image {filePath} to {savePath}: {e.Message}", e);
+                }
+
                 if (filePath != null && File.Exists(filePath))
                 {
                     File.Delete(filePath);
@@ -127,5 +147,6 @@ namespace CameraNotifier.Services.WatchService
             sourceImage.Save(tempPath);
             return tempPath;
         }
+
     }
 }

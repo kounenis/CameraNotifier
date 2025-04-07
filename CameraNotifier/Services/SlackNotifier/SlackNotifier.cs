@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CameraNotifier.Services.SlackNotifier
 {
@@ -16,6 +17,7 @@ namespace CameraNotifier.Services.SlackNotifier
         public SlackNotifier(IOptions<SlackNotifierOptions> options)
         {
             _options = options.Value;
+            Log.Logger.Information("Initializing SlackNotifier");
         }
 
         public void SendNotification(string text, string imageFilePath)

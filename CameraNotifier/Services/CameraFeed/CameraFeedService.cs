@@ -12,6 +12,8 @@ namespace CameraNotifier.Services.CameraFeed
         public CameraFeedService(IOptions<CameraFeedOptions> options)
         {
             _options = options.Value;
+
+            Serilog.Log.Logger.Information("Initializing CameraFeedService");
         }
 
         public string GetPhoto()

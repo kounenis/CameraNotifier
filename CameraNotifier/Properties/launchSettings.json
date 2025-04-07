@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "CameraNotifier": {
+      "commandName": "Project",
+      "commandLineArgs": "--customAppSettings \"\\\\minotaur\\technicalProjects\\parkingNotifier\\cameraNotifierWindows.json\"",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:2358;http://localhost:2359"
+    }
+  }
+}
